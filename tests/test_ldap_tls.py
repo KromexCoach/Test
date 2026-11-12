@@ -100,7 +100,7 @@ def pki(tmp_path_factory):
 
 
 class TlsServer:
-    """Serveur TLS minimal : note si la poignée de main a abouti, puis raccroche."""
+    """Serveur TLS minimal : note si une poignée de main a abouti, puis raccroche."""
 
     def __init__(self, certificate_path, minimum=None, maximum=None) -> None:
         context = ssl.SSLContext(ssl.PROTOCOL_TLS_SERVER)
@@ -111,31 +111,34 @@ class TlsServer:
             context.maximum_version = maximum
         self._context = context
         self._socket = socket.create_server(("127.0.0.1", 0))
-        self._socket.settimeout(5)
         self.port = self._socket.getsockname()[1]
         self.handshake_completed = False
         self._thread = threading.Thread(target=self._serve, daemon=True)
 
     def _serve(self) -> None:
-        try:
-            raw, _ = self._socket.accept()
-        except OSError:
-            return
-        with raw:
-            raw.settimeout(5)
+        # Plusieurs connexions possibles : ldap3 sonde d'abord le port quand le nom du serveur
+        # correspond à plusieurs adresses (IPv4 et IPv6).
+        while True:
             try:
-                with self._context.wrap_socket(raw, server_side=True):
-                    self.handshake_completed = True
-            except (ssl.SSLError, OSError):
-                pass
+                raw, _ = self._socket.accept()
+            except OSError:
+                return
+            with raw:
+                raw.settimeout(5)
+                try:
+                    with self._context.wrap_socket(raw, server_side=True):
+                        self.handshake_completed = True
+                except (ssl.SSLError, OSError):
+                    pass
 
     def __enter__(self):
         self._thread.start()
         return self
 
     def __exit__(self, *exc) -> None:
-        self._thread.join(timeout=5)
+        self._socket.shutdown(socket.SHUT_RDWR)
         self._socket.close()
+        self._thread.join(timeout=5)
 
 
 def connect(port: int, ca_file=None, host: str = "localhost") -> Exception:
