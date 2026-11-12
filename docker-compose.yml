@@ -1,0 +1,19 @@
+# Exemple de déploiement. Placez un reverse proxy TLS (Traefik, Caddy, nginx…) devant le service.
+services:
+  iam-ad:
+    build: .
+    env_file: .env
+    secrets:
+      - iam_ad_bind_password
+    volumes:
+      - ./secrets/ca.pem:/etc/iam-ad/ca.pem:ro
+    ports:
+      - "127.0.0.1:8443:8443"
+    read_only: true
+    cap_drop: [ALL]
+    security_opt: ["no-new-privileges:true"]
+    restart: unless-stopped
+
+secrets:
+  iam_ad_bind_password:
+    file: ./secrets/ad_bind_password.txt

@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>IAM – Nouveau compte utilisateur</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <p id="demo-banner" class="banner" role="status" hidden>
+    Mode démonstration : aucun compte n'est créé dans Active Directory.
+  </p>
+  <main>
+    <header>
+      <h1>Nouveau compte utilisateur</h1>
+      <p>Création dans Active Directory. Le login et le mot de passe initial sont générés.</p>
+    </header>
+
+    <form id="create-form" autocomplete="off" novalidate>
+      <fieldset>
+        <legend>Accès</legend>
+        <label for="token">Clé d'API ou jeton d'accès</label>
+        <input id="token" type="password" required autocomplete="off" spellcheck="false">
+        <p class="hint">Conservé en mémoire le temps de cette page uniquement.</p>
+      </fieldset>
+
+      <fieldset>
+        <legend>Personne</legend>
+        <div class="row">
+          <div>
+            <label for="prenom">Prénom</label>
+            <input id="prenom" name="prenom" required maxlength="64">
+          </div>
+          <div>
+            <label for="nom">Nom</label>
+            <input id="nom" name="nom" required maxlength="64">
+          </div>
+        </div>
+        <label for="mail">Adresse mail</label>
+        <input id="mail" name="mail" type="email" required maxlength="254">
+        <label for="matricule">Numéro de matricule</label>
+        <input id="matricule" name="matricule" required maxlength="16">
+      </fieldset>
+
+      <p id="error" class="error" role="alert" hidden></p>
+      <button id="submit" type="submit">Créer le compte</button>
+    </form>
+
+    <section id="result" aria-live="polite" hidden>
+      <h2>Compte créé</h2>
+      <dl>
+        <dt>Nom affiché</dt><dd id="r-nom"></dd>
+        <dt>Login</dt><dd id="r-login" class="mono"></dd>
+        <dt>Nom principal (UPN)</dt><dd id="r-upn" class="mono"></dd>
+        <dt>Matricule</dt><dd id="r-matricule" class="mono"></dd>
+        <dt>Emplacement</dt><dd id="r-dn" class="mono small"></dd>
+        <dt>Mot de passe initial</dt>
+        <dd class="secret">
+          <span id="r-password" class="mono"></span>
+          <button id="copy" type="button" class="secondary">Copier</button>
+        </dd>
+      </dl>
+      <p class="notice">
+        Ce mot de passe n'est affiché qu'une fois et n'est conservé nulle part.
+        La personne devra le changer à sa première ouverture de session.
+      </p>
+      <button id="again" type="button" class="secondary">Créer un autre compte</button>
+    </section>
+  </main>
+  <script src="app.js"></script>
+</body>
+</html>
